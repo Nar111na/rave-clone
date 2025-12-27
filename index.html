@@ -3,80 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>rAve Discovery</title>
+    <title>rAve - Final Fix</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background: #0b0e14; color: white; min-height: 100vh; margin: 0; }
-        .rave-logo { font-size: 70px; font-weight: 900; letter-spacing: -3px; }
+        .rave-logo { font-size: 70px; font-weight: 900; letter-spacing: -3px; font-style: italic; }
         .rave-input { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); color: white; }
-        .room-card { background: linear-gradient(90deg, #1a1f2e 0%, #0f172a 100%); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; background: white; color: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; }
+        .room-card { background: linear-gradient(90deg, #1a1f2e 0%, #0f172a 100%); border-radius: 20px; }
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; background: white; color: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100; }
         #player-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 16px; overflow: hidden; }
     </style>
 </head>
 <body class="p-4">
 
     <div id="auth-screen" class="flex flex-col items-center pt-20">
-        <h1 class="rave-logo mb-6 italic text-white text-center">r<span>Λ</span>ve</h1>
+        <h1 class="rave-logo mb-6 text-center">r<span>Λ</span>ve</h1>
         <p class="text-center text-lg mb-8 opacity-80">войдите, чтобы смотреть видео с друзьями</p>
         <div class="w-full max-w-sm space-y-4">
             <input id="email" type="email" placeholder="Электронная почта" class="rave-input w-full p-4 rounded-xl outline-none">
             <input id="password" type="password" placeholder="Пароль" class="rave-input w-full p-4 rounded-xl outline-none">
             <button onclick="handleAuth()" id="auth-btn" class="bg-white text-black w-full p-4 rounded-xl font-bold text-lg">Войти или Зарегистрироваться</button>
         </div>
+        <p id="error-log" class="text-red-500 text-[10px] mt-4 hidden font-mono p-2 bg-red-900/20 rounded"></p>
     </div>
 
     <div id="discovery-screen" class="hidden">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-3xl font-bold">Публичные</h2>
-            <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">👤</div>
-        </div>
-        <div class="relative mb-8">
-            <input type="text" placeholder="Поиск" class="w-full p-4 bg-white/10 rounded-2xl outline-none pl-12">
-            <span class="absolute left-4 top-4 opacity-40">🔍</span>
-        </div>
-        <div id="rooms-list" class="space-y-4">
-            </div>
-        <button onclick="createNewRoom()" class="fab font-bold shadow-2xl">+</button>
+        <h2 class="text-3xl font-bold mb-6">Публичные</h2>
+        <div id="rooms-list" class="space-y-4"></div>
+        <button onclick="createNewRoom()" class="fab font-bold">+</button>
     </div>
 
     <div id="player-screen" class="hidden">
-        <button onclick="showDiscovery()" class="mb-4 opacity-50 text-sm">← Назад к поиску</button>
-        <div class="flex gap-2 mb-4">
-            <input id="video-url" type="text" placeholder="YouTube ссылка" class="rave-input flex-1 p-3 rounded-xl outline-none">
-            <button onclick="changeVideo()" class="bg-white text-black px-4 rounded-xl font-bold">OK</button>
-        </div>
+        <button onclick="location.reload()" class="mb-4 opacity-50">← Назад</button>
         <div id="player-container"><div id="player"></div></div>
     </div>
 
     <script>
-        const SB_URL = 'https://mjjcaxonfeyiowjcpvntu.supabase.co'; 
+        // ТВОЙ НОВЫЙ PROJECT URL И КЛЮЧ
+        const SB_URL = 'https://mjjcaxonfeyiowjcpdid.supabase.co'; 
         const SB_KEY = 'sb_publishable_tl8JCaX8oMDxZY3Edkb0RQ_PLXkyRUH';
+        
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
-        let player, currentRoomId, isRemote = false;
+        let player, currentRoomId;
 
         async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.getElementById('auth-btn');
-            if (!email || !password) return alert('Введите данные!');
+            const log = document.getElementById('error-log');
 
-            btn.innerText = 'Загрузка...';
-            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (!email || !password) return alert('Заполни поля!');
+            btn.innerText = 'Связь с базой...';
 
-            if (error) {
-                const { error: regErr } = await _supabase.auth.signUp({ email, password });
-                if (regErr) alert(regErr.message);
-                else alert('Аккаунт создан! Нажми войти еще раз.');
-                btn.innerText = 'Войти или Зарегистрироваться';
-            } else { showDiscovery(); }
+            try {
+                const { data, error: signInError } = await _supabase.auth.signInWithPassword({ email, password });
+
+                if (signInError) {
+                    const { error: signUpError } = await _supabase.auth.signUp({ email, password });
+                    if (signUpError) {
+                        log.innerText = "Ошибка: " + signUpError.message;
+                        log.classList.remove('hidden');
+                        btn.innerText = 'Попробовать снова';
+                    } else {
+                        alert('Аккаунт создан! Нажми войти еще раз.');
+                        btn.innerText = 'Войти';
+                    }
+                } else {
+                    showDiscovery();
+                }
+            } catch (err) {
+                log.innerText = "Критическая ошибка: " + err.message;
+                log.classList.remove('hidden');
+                btn.innerText = 'Ошибка сети';
+            }
         }
 
         function showDiscovery() {
             document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('player-screen').classList.add('hidden');
             document.getElementById('discovery-screen').classList.remove('hidden');
             loadRooms();
         }
@@ -84,57 +89,38 @@
         async function loadRooms() {
             const { data: rooms } = await _supabase.from('rooms').select('*');
             const list = document.getElementById('rooms-list');
-            list.innerHTML = '';
-            rooms.forEach(room => {
+            list.innerHTML = rooms?.length ? '' : '<p class="opacity-40">Нажми +, чтобы создать комнату</p>';
+            
+            rooms?.forEach(room => {
                 const img = `https://img.youtube.com/vi/${room.video_id}/mqdefault.jpg`;
                 list.innerHTML += `
-                    <div class="room-card p-3 flex gap-4 active:scale-95 transition-transform" onclick="joinRoom('${room.id}')">
-                        <img src="${img}" class="w-32 h-20 object-cover rounded-xl shadow-lg">
-                        <div class="flex-1">
-                            <h3 class="font-bold text-sm leading-tight">${room.title}</h3>
-                            <div class="flex mt-2 text-[10px] opacity-40">👤 👤 👤</div>
-                        </div>
+                    <div class="room-card p-3 flex gap-4" onclick="joinRoom('${room.id}', '${room.video_id}')">
+                        <img src="${img}" class="w-32 h-20 object-cover rounded-xl">
+                        <div><h3 class="font-bold text-sm">${room.title || 'Видео'}</h3></div>
                     </div>`;
             });
         }
 
-        function joinRoom(id) {
+        function joinRoom(id, vid) {
             currentRoomId = id;
             document.getElementById('discovery-screen').classList.add('hidden');
             document.getElementById('player-screen').classList.remove('hidden');
-            if (!player) {
-                const tag = document.createElement('script');
-                tag.src = "https://www.youtube.com/iframe_api";
-                document.head.appendChild(tag);
-            } else { player.loadVideoById('dQw4w9WgXcQ'); }
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            window.onYouTubeIframeAPIReady = () => {
+                player = new YT.Player('player', {
+                    height: '100%', width: '100%', videoId: vid,
+                    playerVars: { 'playsinline': 1 }
+                });
+            };
+            document.head.appendChild(tag);
         }
 
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('player', {
-                height: '100%', width: '100%', videoId: 'dQw4w9WgXcQ',
-                playerVars: { 'playsinline': 1, 'controls': 1 },
-                events: { 'onStateChange': onStateChange, 'onReady': initRealtime }
-            });
+        async function createNewRoom() {
+            const id = 'room-' + Date.now();
+            await _supabase.from('rooms').insert({ id: id, video_id: 'dQw4w9WgXcQ', title: 'Моя комната' });
+            joinRoom(id, 'dQw4w9WgXcQ');
         }
-
-        async function onStateChange(e) {
-            if (isRemote) return;
-            if (e.data === 1 || e.data === 2) {
-                await _supabase.from('rooms').upsert({ id: currentRoomId, playback_time: player.getCurrentTime(), is_playing: (e.data === 1) });
-            }
-        }
-
-        function initRealtime() {
-            _supabase.channel('sync-' + currentRoomId)
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rooms', filter: `id=eq.${currentRoomId}` }, payload => {
-                    const d = payload.new; isRemote = true;
-                    if (Math.abs(player.getCurrentTime() - d.playback_time) > 2.5) player.seekTo(d.playback_time);
-                    if (d.is_playing) player.playVideo(); else player.pauseVideo();
-                    setTimeout(() => isRemote = false, 500);
-                }).subscribe();
-        }
-
-        function createNewRoom() { joinRoom('room-' + Date.now()); }
     </script>
 </body>
 </html>
