@@ -3,57 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rave Mobile Clone</title>
+    <title>rAve - Смотри с друзьями</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0b0e14; color: #e2e8f0; font-family: sans-serif; margin: 0; padding: 0; }
-        #player-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .rave-input { background: #1a1f2e; border: 1px solid #334155; color: white; transition: all 0.2s; }
-        .rave-input:focus { border-color: #9333ea; box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.2); }
+        body { 
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #1a0b2e 0%, #4a148c 50%, #0d0221 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .rave-logo { font-size: 80px; font-weight: 900; letter-spacing: -4px; }
+        .rave-logo span { color: #fff; }
+        .rave-input { 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; 
+            backdrop-filter: blur(10px);
+        }
+        .rave-input::placeholder { color: rgba(255, 255, 255, 0.5); }
+        .btn-primary { background: #ffffff; color: #000; transition: all 0.2s; }
+        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+        #player-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 16px; overflow: hidden; }
     </style>
 </head>
-<body class="flex flex-col min-h-screen p-4">
+<body class="flex flex-col items-center px-6">
 
-    <div id="auth-screen" class="flex-1 flex flex-col justify-center items-center">
-        <div class="w-full max-w-sm p-8 bg-slate-900 rounded-3xl shadow-2xl border border-slate-800">
-            <h1 class="text-4xl font-black mb-2 text-purple-500 text-center tracking-tighter">RAVE CLONE</h1>
-            <p class="text-slate-400 text-center mb-8 text-sm">Смотри вместе. Синхронно.</p>
+    <div id="auth-screen" class="w-full max-w-sm flex flex-col items-center pt-20">
+        <h1 class="rave-logo mb-4">r<span>Λ</span>ve</h1>
+        <p class="text-center text-lg mb-8 font-medium">войдите, чтобы смотреть видео с друзьями</p>
+        
+        <div class="w-full space-y-3">
+            <input id="email" type="email" placeholder="Электронная почта" class="rave-input w-full p-4 rounded-xl outline-none text-lg">
+            <input id="password" type="password" placeholder="Пароль" class="rave-input w-full p-4 rounded-xl outline-none text-lg">
             
-            <div class="space-y-4">
-                <input id="email" type="email" placeholder="Email" class="rave-input w-full p-4 rounded-xl outline-none">
-                <input id="password" type="password" placeholder="Пароль" class="rave-input w-full p-4 rounded-xl outline-none">
-                <button onclick="handleAuth()" id="auth-btn" class="w-full bg-purple-600 p-4 rounded-xl font-bold active:scale-95 transition-all hover:bg-purple-700 shadow-lg shadow-purple-900/20">
-                    Войти / Создать аккаунт
-                </button>
-            </div>
-            <p id="auth-error" class="text-red-400 text-xs mt-4 text-center hidden"></p>
+            <button onclick="handleAuth()" id="auth-btn" class="btn-primary w-full p-4 rounded-xl font-bold text-lg shadow-lg">
+                Войти или Зарегистрироваться
+            </button>
         </div>
+
+        <div class="flex gap-4 mt-6 text-sm font-medium">
+            <button onclick="alert('Просто введите почту и пароль выше!')" class="underline opacity-80">Регистрация</button>
+            <span>·</span>
+            <button onclick="alert('Функция в разработке')" class="underline opacity-80">Забыли пароль?</button>
+        </div>
+
+        <p class="text-[10px] text-center mt-10 opacity-50 leading-relaxed px-4">
+            Продолжая, вы соглашаетесь с нашими <br>
+            <span class="underline">Условиями использования</span> и <span class="underline">Политикой конфиденциальности</span>
+        </p>
     </div>
 
-    <div id="app-screen" class="hidden flex flex-col gap-5 max-w-2xl mx-auto w-full">
-        <div class="flex gap-2 bg-slate-900 p-2 rounded-2xl border border-slate-800">
-            <input id="video-url" type="text" placeholder="Вставь ссылку YouTube" class="rave-input flex-1 p-3 rounded-xl text-sm outline-none border-none">
-            <button onclick="changeVideo()" class="bg-purple-600 px-6 rounded-xl font-bold active:scale-95 transition-all">OK</button>
+    <div id="app-screen" class="hidden w-full max-w-3xl flex flex-col gap-6 pt-10">
+        <div class="flex gap-2">
+            <input id="video-url" type="text" placeholder="Вставьте ссылку на YouTube" class="rave-input flex-1 p-3 rounded-xl outline-none border-none">
+            <button onclick="changeVideo()" class="bg-white text-black px-6 rounded-xl font-bold active:scale-95">ОК</button>
         </div>
 
         <div id="player-container">
             <div id="player"></div>
         </div>
 
-        <div class="p-5 bg-slate-900 rounded-2xl border border-slate-800 flex items-start gap-4">
-            <div class="mt-1">
-                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.6)]"></div>
+        <div class="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-md">
+            <div class="flex items-center gap-3">
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <h3 class="font-bold">Синхронизация активна</h3>
             </div>
-            <div>
-                <h3 class="font-bold text-sm">Синхронизация включена</h3>
-                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Любое действие (пауза, перемотка) мгновенно повторится у всех участников в этой комнате.</p>
-            </div>
+            <p class="text-xs opacity-60 mt-2">Пауза и перемотка работают одновременно для всех участников в комнате.</p>
         </div>
     </div>
 
     <script>
-        // --- ТВОИ ПЕРСОНАЛЬНЫЕ КЛЮЧИ ---
+        // ДАННЫЕ ИЗ ТВОИХ СКРИНШОТОВ
         const SB_URL = 'https://mjjcaxonfeyiowjcpvntu.supabase.co'; 
         const SB_KEY = 'sb_publishable_tl8JCaX8oMDxZY3Edkb0RQ_PLXkyRUH';
         
@@ -61,26 +84,24 @@
         let player;
         const roomId = 'global-room';
 
-        // АВТОРИЗАЦИЯ
         async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.getElementById('auth-btn');
             
-            if (!email || !password) return alert('Заполни поля!');
+            if (!email || !password) return alert('Пожалуйста, заполните все поля');
             
-            btn.innerText = 'Секунду...';
+            btn.innerText = 'Загрузка...';
             const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
 
             if (error) {
-                // Пытаемся зарегистрировать, если не залогинились
+                // Пытаемся зарегистрировать, если пользователя нет
                 const { error: regError } = await _supabase.auth.signUp({ email, password });
                 if (regError) {
-                    document.getElementById('auth-error').innerText = regError.message;
-                    document.getElementById('auth-error').classList.remove('hidden');
-                    btn.innerText = 'Войти / Создать аккаунт';
+                    alert('Ошибка: ' + regError.message);
+                    btn.innerText = 'Войти или Зарегистрироваться';
                 } else {
-                    alert('Аккаунт создан! Теперь нажми кнопку еще раз, чтобы войти.');
+                    alert('Аккаунт создан! Нажмите кнопку войти еще раз.');
                     btn.innerText = 'Войти';
                 }
             } else {
@@ -91,19 +112,14 @@
         function showApp() {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('app-screen').classList.remove('hidden');
-            
-            // Загрузка YouTube Player API
             const tag = document.createElement('script');
             tag.src = "https://www.youtube.com/iframe_api";
             document.head.appendChild(tag);
         }
 
-        // РАБОТА С ПЛЕЕРОМ
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('player', {
-                height: '100%',
-                width: '100%',
-                videoId: 'dQw4w9WgXcQ', 
+                height: '100%', width: '100%', videoId: 'dQw4w9WgXcQ',
                 playerVars: { 'playsinline': 1, 'controls': 1, 'rel': 0 },
                 events: { 'onStateChange': onPlayerStateChange }
             });
@@ -111,55 +127,34 @@
         }
 
         async function onPlayerStateChange(event) {
-            // Реагируем на Play (1) и Pause (2)
             if (event.data === 1 || event.data === 2) {
-                const isPlaying = (event.data === 1);
                 await _supabase.from('rooms').upsert({ 
-                    id: roomId, 
-                    playback_time: player.getCurrentTime(),
-                    is_playing: isPlaying,
+                    id: roomId, playback_time: player.getCurrentTime(),
+                    is_playing: (event.data === 1),
                     last_updated: new Date()
                 });
             }
         }
 
-        // РЕАЛЬНОЕ ВРЕМЯ (СИНХРОНИЗАЦИЯ)
         function initRealtime() {
             _supabase.channel('rave-sync')
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rooms' }, payload => {
                     const data = payload.new;
                     if (data.id === roomId) {
-                        // Если сменилось видео
-                        if (data.video_id && data.video_id !== player.getVideoData().video_id) {
-                            player.loadVideoById(data.video_id);
-                        }
-                        
-                        // Если разница во времени больше 2 сек - мотаем
-                        const localTime = player.getCurrentTime();
-                        if (Math.abs(localTime - data.playback_time) > 2.5) {
-                            player.seekTo(data.playback_time);
-                        }
-
-                        // Состояние Play/Pause
-                        if (data.is_playing) player.playVideo();
-                        else player.pauseVideo();
+                        if (data.video_id && data.video_id !== player.getVideoData().video_id) player.loadVideoById(data.video_id);
+                        if (Math.abs(player.getCurrentTime() - data.playback_time) > 2.5) player.seekTo(data.playback_time);
+                        if (data.is_playing) player.playVideo(); else player.pauseVideo();
                     }
-                })
-                .subscribe();
+                }).subscribe();
         }
 
         async function changeVideo() {
             const url = document.getElementById('video-url').value;
-            // Вырезаем ID видео из ссылки
             const vid = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
             if (vid) {
                 player.loadVideoById(vid);
                 await _supabase.from('rooms').upsert({ 
-                    id: roomId, 
-                    video_id: vid, 
-                    playback_time: 0, 
-                    is_playing: true,
-                    last_updated: new Date() 
+                    id: roomId, video_id: vid, playback_time: 0, is_playing: true, last_updated: new Date() 
                 });
             }
         }
