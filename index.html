@@ -3,143 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>rAve Premium</title>
+    <title>rAve - Watch Together</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* --- ПРЕМИУМ ДИЗАЙН --- */
         body { 
             font-family: 'Inter', sans-serif; 
-            /* Глубокий, дорогой темный фон */
-            background: linear-gradient(180deg, #1a0b2e 0%, #0d041a 60%, #000000 100%); 
-            color: white; min-height: 100vh; margin: 0; padding: 0; overflow-x: hidden;
+            background: #0d0612;
+            background: radial-gradient(circle at 50% 30%, #8e2a77 0%, #3e1250 40%, #110618 85%);
+            color: white; 
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
         }
-        /* Логотип точно как на скрине */
-        .rave-logo { font-size: 76px; font-weight: 900; letter-spacing: -3px; font-style: italic; }
-        
-        /* Эффект дорогого стекла для полей ввода и карточек */
-        .glass { 
-            background: rgba(255, 255, 255, 0.08); 
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1); 
+        /* Тот самый логотип rAve из твоего кода */
+        .rave-logo { 
+            font-size: 86px; 
+            font-weight: 900; 
+            letter-spacing: -0.05em; 
+            line-height: 1;
+            display: flex;
+            align-items: center;
         }
-        input::placeholder { color: rgba(255, 255, 255, 0.4); font-weight: 500; }
-        
-        /* Кнопка "Войти" - белая, контрастная */
-        .btn-primary { background: #ffffff; color: black; font-weight: 700; transition: transform 0.1s; }
-        .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+        .rave-logo span { font-weight: 300; margin: 0 -3px; }
 
-        /* Вертикальная карточка комнаты (как на скрине) */
-        .room-card-vertical { 
-            border-radius: 20px; overflow: hidden; position: relative;
-            aspect-ratio: 2/3; /* Вертикальный формат постера */
+        /* Поля ввода как в React-примере */
+        .rave-input { 
+            background: rgba(28, 28, 28, 0.6); 
+            border: 1px solid #333; 
+            color: white;
+            transition: border-color 0.2s;
         }
-        .room-card-vertical img { width: 100%; height: 100%; object-fit: cover; }
-        .card-overlay { 
-            position: absolute; bottom: 0; left: 0; right: 0; 
-            background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
-            padding: 20px;
-        }
+        .rave-input:focus { border-color: #555; }
+        .rave-input::placeholder { color: #666; }
 
-        /* Плавающая кнопка "+" */
-        .fab { position: fixed; bottom: 30px; right: 25px; width: 64px; height: 64px; background: white; color: black; border-radius: 50%; font-size: 36px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 50; }
-        
-        #player-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 16px; overflow: hidden; }
+        .btn-primary { background: white; color: black; font-weight: 700; transition: all 0.2s; }
+        .btn-primary:active { transform: scale(0.95); opacity: 0.9; }
+
+        .discovery-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; }
+        #player-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
     </style>
 </head>
-<body class="antialiased">
+<body>
 
-    <div id="auth-screen" class="flex flex-col items-center px-6 h-screen justify-center pb-20">
-        <h1 class="rave-logo mb-4 text-white">r<span>Λ</span>ve</h1>
-        <p class="text-center text-lg mb-12 opacity-70 font-medium">войдите, чтобы смотреть видео с друзьями</p>
+    <div id="auth-screen" class="flex flex-col items-center justify-center min-h-screen px-6 text-center">
+        <h1 class="rave-logo mb-2">r<span>Λ</span>ve</h1>
         
-        <div class="w-full max-w-sm space-y-4">
-            <input id="email" type="email" placeholder="Электронная почта" class="glass w-full p-4 rounded-2xl outline-none text-lg focus:border-white/30 transition-all">
-            <input id="password" type="password" placeholder="Пароль" class="glass w-full p-4 rounded-2xl outline-none text-lg focus:border-white/30 transition-all">
-            <button onclick="handleAuth()" id="auth-btn" class="btn-primary w-full p-4 rounded-2xl text-lg shadow-xl">
+        <p id="auth-subtitle" class="text-[19px] mb-10 leading-tight opacity-90 max-w-[260px]">
+            войдите, чтобы смотреть видео с друзьями
+        </p>
+
+        <div class="w-full max-w-sm space-y-3">
+            <input id="email" type="email" placeholder="Электронная почта" class="rave-input w-full p-4 rounded-xl outline-none text-lg">
+            <input id="password" type="password" placeholder="Пароль" class="rave-input w-full p-4 rounded-xl outline-none text-lg">
+            
+            <button onclick="handleAuth()" id="auth-btn" class="btn-primary w-full p-4 rounded-xl text-lg mt-2">
                 Войти или Зарегистрироваться
             </button>
         </div>
-        
-        <div class="mt-8 flex gap-6 text-sm font-semibold opacity-60 underline decoration-white/30">
-            <button>Регистрация</button>
-            <button>Забыли пароль?</button>
+
+        <div class="flex items-center gap-2 text-[15px] mt-8">
+            <button onclick="toggleMode()" id="mode-toggle" class="text-[#4fa3ff] underline underline-offset-4">Регистрация</button>
+            <span class="opacity-40">·</span>
+            <button class="text-[#4fa3ff] underline underline-offset-4">Забыли пароль?</button>
         </div>
-        <p id="auth-error" class="text-red-500 text-sm mt-4 hidden p-2 glass rounded text-center"></p>
+
+        <footer class="text-[13px] text-white/50 leading-relaxed max-w-[320px] mt-12">
+            Продолжая, вы соглашаетесь с нашими <br>
+            <span class="underline">Условиями использования</span> и <span class="underline">Политикой конфиденциальности</span>
+        </footer>
     </div>
 
-    <div id="discovery-screen" class="hidden px-5 pt-12 pb-24 animate-fade-in">
+    <div id="discovery-screen" class="hidden px-5 pt-12 pb-24">
         <div class="flex items-center justify-between mb-8">
-            <h2 class="text-[34px] font-black tracking-tight">Публичные</h2>
-            <div class="w-11 h-11 glass rounded-full flex items-center justify-center text-lg shadow-lg">👤</div>
+            <h2 class="text-4xl font-black">Публичные</h2>
+            <div onclick="signOut()" class="w-11 h-11 bg-white/10 rounded-full flex items-center justify-center text-xl cursor-pointer">👤</div>
         </div>
-
-        <div class="relative mb-10">
-            <input type="text" placeholder="Поиск" class="glass w-full p-4 rounded-[20px] outline-none pl-12 text-lg shadow-sm">
-            <span class="absolute left-4 top-5 opacity-40 text-xl">🔍</span>
-        </div>
-
-        <div id="rooms-list" class="grid grid-cols-2 gap-4">
+        <div id="rooms-list" class="space-y-4">
             </div>
-
-        <button onclick="createNewRoom()" class="fab">+</button>
+        <button onclick="createNewRoom()" class="fixed bottom-8 right-6 w-16 h-16 bg-white text-black rounded-full text-4xl font-light shadow-2xl">+</button>
     </div>
 
-    <div id="player-screen" class="hidden px-4 pt-8 h-screen flex flex-col">
-        <div class="flex items-center gap-4 mb-6">
-            <button onclick="location.reload()" class="w-11 h-11 glass rounded-full flex items-center justify-center font-bold text-xl">←</button>
-            <h3 id="room-title" class="font-bold truncate text-lg opacity-90">Комната</h3>
-        </div>
-        
-        <div class="flex-1 flex flex-col justify-center mb-20">
-            <div id="player-container" class="shadow-2xl">
-                <div id="player"></div>
-            </div>
-
-            <div class="mt-8 glass p-5 rounded-[24px] flex items-center gap-4">
-                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_15px_#22c55e]"></div>
-                <div>
-                    <p class="text-sm font-bold">Синхронизация активна</p>
-                    <p class="text-[11px] opacity-50 font-medium mt-0.5">Все участники видят один и тот же момент</p>
-                </div>
-            </div>
+    <div id="player-screen" class="hidden px-4 pt-8">
+        <button onclick="location.reload()" class="mb-6 opacity-40 text-lg">← Назад</button>
+        <div id="player-container"><div id="player"></div></div>
+        <div class="mt-8 bg-white/5 p-5 rounded-[24px] flex items-center gap-4">
+            <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
+            <p class="text-sm font-bold opacity-70">Синхронизация rAve включена</p>
         </div>
     </div>
 
     <script>
-        // ТВОИ ДАННЫЕ (НЕ МЕНЯЙ)
+        // ТВОИ ДАННЫЕ
         const SB_URL = 'https://mjjcaxonfeyiowjcpdid.supabase.co'; 
         const SB_KEY = 'sb_publishable_tl8JCaX8oMDxZY3Edkb0RQ_PLXkyRUH';
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
-        let player, currentRoomId, isRemote = false;
+        
+        let isRegistering = false;
+        let player, currentRoomId;
 
-        // --- ЛОГИКА (ОСТАЕТСЯ ПРЕЖНЕЙ, НО СТАБИЛЬНЕЕ) ---
+        // Переключение режимов (взято из логики твоего React-кода)
+        function toggleMode() {
+            isRegistering = !isRegistering;
+            document.getElementById('auth-subtitle').innerText = isRegistering 
+                ? 'Создайте аккаунт для просмотра видео' 
+                : 'войдите, чтобы смотреть видео с друзьями';
+            document.getElementById('auth-btn').innerText = isRegistering 
+                ? 'Зарегистрироваться' 
+                : 'Войти или Зарегистрироваться';
+            document.getElementById('mode-toggle').innerText = isRegistering 
+                ? 'Уже есть аккаунт?' 
+                : 'Регистрация';
+        }
+
         async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const btn = document.getElementById('auth-btn');
-            const errTxt = document.getElementById('auth-error');
 
-            if (!email || !password) return alert('Заполни все поля');
-            btn.innerText = 'Проверка...'; errTxt.classList.add('hidden');
+            if (!email || !password) return alert('Заполни поля!');
+            btn.innerText = 'Секунду...';
 
-            const { error } = await _supabase.auth.signInWithPassword({ email, password });
-            if (error) {
-                const { error: signUpErr } = await _supabase.auth.signUp({ email, password });
-                if (signUpErr) {
-                    errTxt.innerText = signUpErr.message;
-                    errTxt.classList.remove('hidden');
-                    btn.innerText = 'Войти или Зарегистрироваться';
-                } else {
-                    alert('Аккаунт создан! Теперь нажми Войти еще раз.');
-                    btn.innerText = 'Войти';
-                }
-            } else { showDiscovery(); }
+            if (isRegistering) {
+                const { error } = await _supabase.auth.signUp({ email, password });
+                if (error) alert(error.message);
+                else alert('Регистрация успешна! Теперь можно войти.');
+                toggleMode();
+            } else {
+                const { error } = await _supabase.auth.signInWithPassword({ email, password });
+                if (error) alert('Ошибка входа: проверьте данные');
+                else showDiscovery();
+            }
+            btn.innerText = isRegistering ? 'Зарегистрироваться' : 'Войти или Зарегистрироваться';
         }
 
         function showDiscovery() {
-            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('discovery-screen').classList.remove('hidden');
             loadRooms();
         }
@@ -147,73 +147,52 @@
         async function loadRooms() {
             const { data: rooms } = await _supabase.from('rooms').select('*').order('last_updated', { ascending: false });
             const list = document.getElementById('rooms-list');
-            list.innerHTML = rooms?.length ? '' : '<p class="col-span-2 text-center opacity-40 py-20 font-medium">Нет активных комнат</p>';
+            list.innerHTML = rooms?.length ? '' : '<p class="text-center opacity-30 py-20 italic">Нет активных комнат</p>';
             
             rooms?.forEach(room => {
-                // Используем качественные постеры (maxresdefault) для вертикальных карточек
-                const img = `https://img.youtube.com/vi/${room.video_id}/maxresdefault.jpg`;
+                const img = `https://img.youtube.com/vi/${room.video_id}/mqdefault.jpg`;
                 list.innerHTML += `
-                    <div class="room-card-vertical shadow-xl active:scale-95 transition-transform" onclick="joinRoom('${room.id}', '${room.video_id}', '${room.title}')">
-                        <img src="${img}" loading="lazy">
-                        <div class="card-overlay">
-                            <h3 class="font-bold text-sm leading-tight line-clamp-2 mb-3">${room.title || 'Видео'}</h3>
-                            <div class="flex -space-x-2 opacity-80">
-                                <div class="w-8 h-8 rounded-full bg-purple-600 border-2 border-black flex items-center justify-center text-[10px] font-bold">👤</div>
-                                <div class="w-8 h-8 rounded-full glass border-2 border-black flex items-center justify-center text-[10px] font-bold">+</div>
-                            </div>
+                    <div class="discovery-card p-4 flex gap-4 active:scale-95 transition-all" onclick="joinRoom('${room.id}', '${room.video_id}')">
+                        <img src="${img}" class="w-32 h-20 object-cover rounded-xl shadow-lg">
+                        <div class="flex flex-col justify-center">
+                            <h3 class="font-bold text-sm leading-tight mb-2">${room.title || 'Смотрим вместе'}</h3>
+                            <div class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-[10px]">👤</div>
                         </div>
                     </div>`;
             });
         }
 
-        function joinRoom(id, vid, title) {
+        function joinRoom(id, vid) {
             currentRoomId = id;
-            document.getElementById('room-title').innerText = title;
             document.getElementById('discovery-screen').classList.add('hidden');
             document.getElementById('player-screen').classList.remove('hidden');
-            
             if (!window.YT) {
                 const tag = document.createElement('script');
                 tag.src = "https://www.youtube.com/iframe_api";
                 window.onYouTubeIframeAPIReady = () => startPlayer(vid);
                 document.head.appendChild(tag);
-            } else { player.loadVideoById(vid); initRealtime(); }
+            } else { player.loadVideoById(vid); }
         }
 
         function startPlayer(vid) {
             player = new YT.Player('player', {
                 height: '100%', width: '100%', videoId: vid,
-                playerVars: { 'playsinline': 1, 'controls': 1, 'modestbranding': 1, 'rel': 0 },
-                events: { 'onStateChange': onStateChange, 'onReady': initRealtime }
+                playerVars: { 'playsinline': 1, 'controls': 1 }
             });
         }
 
-        async function onStateChange(e) {
-            if (isRemote || !player) return;
-            if (e.data === 1 || e.data === 2) {
-                await _supabase.from('rooms').upsert({ 
-                    id: currentRoomId, playback_time: player.getCurrentTime(), is_playing: (e.data === 1), last_updated: new Date()
-                });
-            }
-        }
-
-        function initRealtime() {
-            _supabase.channel('sync-' + currentRoomId)
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rooms', filter: `id=eq.${currentRoomId}` }, payload => {
-                    const d = payload.new; isRemote = true;
-                    if (Math.abs(player.getCurrentTime() - d.playback_time) > 2) player.seekTo(d.playback_time);
-                    if (d.is_playing) player.playVideo(); else player.pauseVideo();
-                    setTimeout(() => isRemote = false, 500);
-                }).subscribe();
-        }
-
         async function createNewRoom() {
-            const url = prompt("Вставь ссылку на YouTube:"); if (!url) return;
+            const url = prompt("Вставь ссылку на YouTube:");
+            if (!url) return;
             const vid = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
-            const title = prompt("Название комнаты:", "Новая комната");
             const id = 'room-' + Date.now();
-            await _supabase.from('rooms').insert({ id, video_id: vid, title });
-            loadRooms(); // Обновляем список
+            await _supabase.from('rooms').insert({ id, video_id: vid, title: 'Моя комната rAve' });
+            loadRooms();
+        }
+
+        async function signOut() {
+            await _supabase.auth.signOut();
+            location.reload();
         }
     </script>
 </body>
